@@ -20,26 +20,25 @@ main = do
   putStrLn (show lifeSupportRating)
 
 calculateOxygenGenerator :: [String] -> Int
-calculateOxygenGenerator report = toDec $ progressiveBitFilter report 0 mostCommonBitAtPosition
+calculateOxygenGenerator = toDec . progressiveBitFilter mostCommonBitAtPosition
 
 calculateCo2ScrubberRating :: [String] -> Int
-calculateCo2ScrubberRating report = toDec $ progressiveBitFilter report 0 leastCommonBitAtPosition
+calculateCo2ScrubberRating = toDec . progressiveBitFilter leastCommonBitAtPosition
 
-progressiveBitFilter :: [String] -> Int -> ([String] -> Int -> Char) -> String
-progressiveBitFilter report currentPosition bitCalculator
-  | length report == 1 = head report
-  | otherwise = progressiveBitFilter filtered (currentPosition+1) bitCalculator
+progressiveBitFilter :: ([String] -> Int -> Char) -> [String] -> String
+progressiveBitFilter bitCalculator report =
+  head $ foldl(\acc i -> filterReport acc (bitCalculator acc i) i) report [0..n]
   where
-    mcb = bitCalculator report currentPosition
-    filtered = filterReport report mcb currentPosition
+    n = (length $ head report) - 1
 
 filterReport :: [String] -> Char -> Int -> [String]
-filterReport report bit position =
-  filter (\row -> row !! position == bit) report
+filterReport report bit position
+  | length report == 1 = report
+  | otherwise = filter (\row -> row !! position == bit) report
 
 mostCommonBitAtPosition :: [String] -> Int -> Char
 mostCommonBitAtPosition report position =
-  mostCommonBit (map (\row -> row !! position) report)
+  mostCommonBit $ map (\row -> row !! position) report
 
 mostCommonBit :: String -> Char
 mostCommonBit value
@@ -51,7 +50,7 @@ mostCommonBit value
 
 leastCommonBitAtPosition :: [String] -> Int -> Char
 leastCommonBitAtPosition report position =
-  leastCommonBit (map (\row -> row !! position) report)
+  leastCommonBit $ map (\row -> row !! position) report
 
 leastCommonBit :: String -> Char
 leastCommonBit value
