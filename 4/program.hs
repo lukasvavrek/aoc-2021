@@ -57,12 +57,20 @@ markField (Free value) number
 markField field number = field
 
 solveBingo' :: [Board] -> [Int] -> Board
-solveBingo' boards numbers =
-  head $ foldl (\acc number -> if isAnySolved acc then filter isSolved acc else markBoards acc number) boards numbers
+solveBingo' boards numbers = head $ foldl markBoardsIfNotSolved boards numbers
+  where
+    markBoardsIfNotSolved boards number =
+      if isAnySolved boards
+      then filter isSolved boards
+      else markBoards boards number
 
 solveBingo :: Board -> [Int] -> Board
-solveBingo board numbers =
-  foldl (\acc number -> if isSolved acc then acc else markBoard acc number) board numbers
+solveBingo board numbers = foldl markBoardIfNotSolved board numbers
+  where
+    markBoardIfNotSolved board number =
+      if isSolved board
+      then board
+      else markBoard board number
 
 isAnySolved :: [Board] -> Bool
 isAnySolved boards =
